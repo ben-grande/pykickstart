@@ -18,8 +18,9 @@
 # with the express permission of Red Hat, Inc.
 #
 
-import unittest
 import copy
+import shlex
+import unittest
 from tests.baseclass import CommandTest
 from pykickstart.base import DeprecatedCommand, RemovedCommand
 
@@ -192,8 +193,13 @@ class FC3_TestCase(CommandTest):
             self.assert_parse("harddrive --dir=/install --biospart=part", "harddrive --dir=/install --biospart=part\n")
         self.assert_parse("harddrive --dir=/install --partition=part", "harddrive --dir=/install --partition=part\n")
 
+        complicated_dir = """/OS I"SO/dir iso's/the.iso"""
+        self.assert_parse("harddrive --dir=%s --partition=part" % shlex.quote(complicated_dir))
+
+
         # nfs
         self.assert_parse("nfs --server=1.2.3.4 --dir=/install", "nfs --server=1.2.3.4 --dir=/install\n")
+        self.assert_parse("nfs --server=1.2.3.4 --dir=%s" % shlex.quote(complicated_dir))
 
         # url
         self.assert_parse("url --url=http://domain.com", "url --url=\"http://domain.com\"\n")
@@ -213,6 +219,14 @@ class FC3_TestCase(CommandTest):
         self.assert_parse_error("harddrive --dir=/install --partition")
         # unknown option
         self.assert_parse_error("harddrive --unknown=value")
+        # Space without quotation
+        self.assert_parse_error("harddrive --dir=/OS /space.iso --partition=/sdb3")
+
+        # No closing quotation
+        with self.assertRaises(ValueError, msg="No closing quotation"):
+            self.assert_parse("harddrive --biospart=bios --dir/the'/thingy.iso")
+        with self.assertRaises(ValueError, msg="No closing quotation"):
+            self.assert_parse("harddrive --biospart=bios --dir/the\"/thingy.iso")
 
         # nfs
         # missing required options --server and --dir
@@ -223,6 +237,11 @@ class FC3_TestCase(CommandTest):
         self.assert_parse_error("nfs --dir")
         # unknown option
         self.assert_parse_error("nfs --unknown=value")
+        # No closing quotation
+        with self.assertRaises(ValueError, msg="No closing quotation"):
+            self.assert_parse_error("nfs --server=1.2.3.4 --dir=/'oops")
+        # Space without quotation
+        self.assert_parse_error("nfs --server=1.2.3.4 --dir=/ oops", regex="unrecognized arguments: oops")
 
         # url
         # missing required option --url

@@ -18,6 +18,7 @@
 # with the express permission of Red Hat, Inc.
 #
 
+import shlex
 import unittest
 from tests.baseclass import CommandTest
 from pykickstart.commands.harddrive import FC3_HardDrive, F33_HardDrive
@@ -51,6 +52,17 @@ class HardDrive_TestCase(unittest.TestCase):
         attribute_test(self,
                        data1, data2,
                        ['biospart', 'partition', 'dir'])
+
+        complicated_dir = """/OS I"SO/dir iso's/the.iso"""
+        expected_dir = "--dir=%s" % shlex.quote(complicated_dir)
+        data3 = FC3_HardDrive(dir=complicated_dir)
+        data3.seen = True
+        line3 = [line[len("harddrive "):] for line in str(data3).splitlines() if line.startswith("harddrive ")][0]
+        assert expected_dir in line3
+        data4 = FC3_HardDrive(dir=complicated_dir, biospart="sda1")
+        data4.seen = True
+        line4 = [line[len("harddrive "):] for line in str(data4).splitlines() if line.startswith("harddrive ")][0]
+        assert expected_dir in line4
 
 
 class FC3_TestCase(CommandTest):
@@ -91,6 +103,13 @@ class F33HardDrive_TestCase(unittest.TestCase):
         attribute_test(self,
                        data1, data2,
                        ['partition', 'dir'])
+
+        complicated_dir = "/OS ISO/dir iso's/the.iso"
+        expected_dir = "--dir=%s" % shlex.quote(complicated_dir)
+        data3 = F33_HardDrive(dir=complicated_dir)
+        data3.seen = True
+        line3 = [line[len("harddrive "):] for line in str(data3).splitlines() if line.startswith("harddrive ")][0]
+        assert expected_dir in line3
 
 
 class F33_TestCase(CommandTest):

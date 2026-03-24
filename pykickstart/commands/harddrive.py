@@ -17,6 +17,9 @@
 # subject to the GNU General Public License and may only be used or replicated
 # with the express permission of Red Hat, Inc.
 #
+
+import shlex
+
 from pykickstart.version import FC3, F33
 from pykickstart.base import KickstartCommand
 from pykickstart.errors import KickstartParseError
@@ -55,9 +58,9 @@ class FC3_HardDrive(KickstartCommand):
         retval += "# Use hard drive installation media\n"
 
         if self.biospart is not None:
-            retval += "harddrive --dir=%s --biospart=%s\n" % (self.dir, self.biospart)
+            retval += "harddrive --dir=%s --biospart=%s\n" % (shlex.quote(self.dir), self.biospart)
         else:
-            retval += "harddrive --dir=%s --partition=%s\n" % (self.dir, self.partition)
+            retval += "harddrive --dir=%s --partition=%s\n" % (shlex.quote(self.dir), self.partition)
 
         return retval
 
@@ -111,7 +114,7 @@ class F33_HardDrive(FC3_HardDrive):
             return retval
 
         retval += "# Use hard drive installation media\n"
-        retval += "harddrive --dir=%s --partition=%s\n" % (self.dir, self.partition)
+        retval += "harddrive --dir=%s --partition=%s\n" % (shlex.quote(self.dir), self.partition)
 
         return retval
 

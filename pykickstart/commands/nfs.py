@@ -17,6 +17,9 @@
 # subject to the GNU General Public License and may only be used or replicated
 # with the express permission of Red Hat, Inc.
 #
+
+import shlex
+
 from pykickstart.version import FC3, FC6
 from pykickstart.base import KickstartCommand
 from pykickstart.options import KSOptionParser
@@ -46,7 +49,7 @@ class FC3_NFS(KickstartCommand):
         if not self.seen:
             return retval
 
-        retval += "# Use NFS installation media\nnfs --server=%s --dir=%s\n" % (self.server, self.dir)
+        retval += "# Use NFS installation media\nnfs --server=%s --dir=%s\n" % (self.server, shlex.quote(self.dir))
         return retval
 
     def _getParser(self):

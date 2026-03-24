@@ -200,10 +200,10 @@ class Certificate(KickstartObject):
 
         retval = "\n%certificate"
 
-        retval += " --filename=%s" % self.filename
+        retval += " --filename=%s" % shlex.quote(self.filename)
 
         if self.dir:
-            retval += " --dir=%s\n" % self.dir
+            retval += " --dir=%s\n" % shlex.quote(self.dir)
 
         return retval + self.cert + "\n%end\n"
 
